@@ -13,8 +13,7 @@ async function createIssue(title, body) {
 		}, {
 			headers: {
 				Authorization: `token ${MY_PERSONAL_TOKEN}`,
-				Accept: 'application/vnd.github.v3+json',
-				'User-Agent': 'Automated Issue Creator'
+				Accept: 'application/vnd.github.v3+json'
 			}
 		});
 
@@ -22,64 +21,50 @@ async function createIssue(title, body) {
 			console.log(`Issue created: ${response.data.html_url}`);
 		} else {
 			console.error('Failed to create issue. Status code:', response.status);
-			console.error('Response data:', response.data);
 		}
 	} catch (error) {
-		console.error('Error creating issue:', error.response ? error.response.data : error.message);
+		console.error('Error creating issue:', error.message);
 	}
 }
 
 function parseTestResults() {
-	let testResult = {};
 	try {
-		// Mocha コマンドを実行して JSON 結果を取得
-		const result = execSync('npm test -- --reporter json', { stdio: ['pipe', 'pipe', 'pipe'] }).toString();
-		console.log("Raw test result:", result); // JSONの内容をログに出力
+		// Mocha コマンドを実行して標準出力の結果を文字列として取得
+		const result = execSync('npm test', { encoding: 'utf-8' });
+		console.log("Test result:", result);
 
-		// 出力から最初の非JSON行を除去
-		const jsonStartIndex = result.indexOf('{');
-		const jsonString = result.substring(jsonStartIndex).trim();
+		// 正規表現で失敗したテストケースを抽出
+		const failureRegex = /(\d+\)) ([\s\S]+?)\n\n\s+(.+?)\n\s+at/g;
+		let match;
+		const failedTests = [];
 
-		// JSONとしてパース
-		testResult = JSON.parse(jsonString);
-		console.log("Parsed test result:", testResult); // パースされた結果をログに出力
+		while ((match = failureRegex.exec(result)) !== null) {
+			const title = match[2].trim();
+			const message = match[3].trim();
+			failedTests.push({
+				title: title,
+				message: message,
+				stack: match[0] // エラー部分全体をスタックトレースとして保存
+			});
+		}
 
+		return failedTests;
 	} catch (error) {
-		console.error('Error parsing test results:', error.message);
-		console.error('Standard Error Output:', error.stderr ? error.stderr.toString() : 'No stderr');
-		process.exit(1); // パースに失敗した場合、スクリプトを終了する
+		console.error('Error running test:', error.message);
+		return [];
 	}
-
-	// テストの失敗をフィルタリング
-	const failedTests = testResult.tests ? testResult.tests.filter(test => test.err && Object.keys(test.err).length > 0)
-		.map(failure => {
-			return {
-				title: failure.fullTitle,
-				message: failure.err.message,
-				stack: failure.err.stack
-			};
-		}) : [];
-
-	return failedTests;
 }
 
 async function main() {
-	try {
-		const failedTests = parseTestResults();
-		console.log('Parsed test failures:', failedTests); // 失敗したテストをログに出力
-
-		if (failedTests.length > 0) {
-			for (const test of failedTests) {
-				const issueTitle = `Test Failure: ${test.title}`;
-				const issueBody = `### Error Message\n\n${test.message}\n\n### Stack Trace\n\`\`\`\n${test.stack}\n\`\`\``;
-				await createIssue(issueTitle, issueBody);
-			}
-		} else {
-			console.log('No test failures detected.');
+	const failedTests = parseTestResults();
+	if (failedTests.length > 0) {
+		for (const test of failedTests) {
+			const issueTitle = `Test Failure: ${test.title}`;
+			const issueBody = `### Error Message\n\n${test.message}\n\n### Stack Trace\n\`\`\`\n${test.stack}\n\`\`\``;
+			await createIssue(issueTitle, issueBody);
 		}
-	} catch (error) {
-		console.error('Error in main function:', error.message);
-		process.exit(1); // エラーが発生した場合、スクリプトを終了する
+	} else {
+		console.log('No test failures detected.');
 	}
 }
 
