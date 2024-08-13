@@ -1,7 +1,6 @@
 const axios = require('axios');
 const { execSync } = require('child_process');
 
-// 環境変数の取得
 const MY_PERSONAL_TOKEN = process.env.MY_PERSONAL_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
 
@@ -36,9 +35,13 @@ function parseTestResults() {
     const result = execSync('npm test -- --reporter json').toString();
     console.log("Raw test result:", result); // JSONの内容をログに出力
 
-    const parsedResult = JSON.parse(result);
+    // 先頭と末尾の余分な文字を削除
+    const trimmedResult = result.trim();
+    // JSONとしてパース
+    const parsedResult = JSON.parse(trimmedResult);
     console.log("Parsed test result:", parsedResult); // パースされた結果をログに出力
 
+    // テストの失敗をフィルタリング
     const failedTests = parsedResult.tests.filter(test => test.err && Object.keys(test.err).length > 0)
       .map(failure => {
         return {
