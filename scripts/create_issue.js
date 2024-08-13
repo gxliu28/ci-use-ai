@@ -37,7 +37,7 @@ function runTests() {
 	} catch (error) {
 		// 標準エラー出力からエラーメッセージを取得
 		console.error('Test failed:', error.stderr.toString());
-		return error.stderr.toString();
+		return error.stdout.toString() + '\n' + error.stack.toString() + '\n' + error.stderr.toString();
 	}
 }
 
