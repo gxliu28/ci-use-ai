@@ -1,8 +1,8 @@
 const axios = require('axios');
 const { execSync } = require('child_process');
 
-const MY_PERSONAL_TOKEN = process.env.MY_PERSONAL_TOKEN;
-const REPO = process.env.GITHUB_REPOSITORY;
+//const MY_PERSONAL_TOKEN = process.env.MY_PERSONAL_TOKEN;
+//const REPO = process.env.GITHUB_REPOSITORY;
 
 async function createIssue(title, body) {
   const url = `https://api.github.com/repos/${REPO}/issues`;
@@ -33,11 +33,12 @@ function parseTestResults() {
     const result = execSync('npm test -- --reporter json').toString();
     console.log("Raw test result:", result); // JSONの内容をログに出力
 
-    // 出力から不要な文字を削除
-    const trimmedResult = result.trim();
-    
+    // 出力から最初の非JSON行を除去
+    const jsonStartIndex = result.indexOf('{');
+    const jsonString = result.substring(jsonStartIndex).trim();
+
     // JSONとしてパース
-    const parsedResult = JSON.parse(trimmedResult);
+    const parsedResult = JSON.parse(jsonString);
     console.log("Parsed test result:", parsedResult); // パースされた結果をログに出力
 
     // テストの失敗をフィルタリング
