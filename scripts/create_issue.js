@@ -42,7 +42,7 @@ function parseTestResults() {
 		console.log("Test result:", output);
 
 		// 正規表現で失敗したテストケースを抽出
-		const failureRegex = /(\d+\)) ([\s\S]+?)\n\n\s+(.+?)\n\s+at/g;
+		const failureRegex = /(\d+\))\s+([^\n]+)\n\s+\+(.+?)\n\s+-/g;
 		let match;
 		const failedTests = [];
 
