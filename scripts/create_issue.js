@@ -6,7 +6,7 @@ const MY_PERSONAL_TOKEN = process.env.MY_PERSONAL_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
 
 console.log("MY_PERSONAL_TOKEN=" + MY_PERSONAL_TOKEN);
-console.log("REPO" + REPO);
+console.log("REPO=" + REPO);
 
 async function createIssue(title, body) {
   const url = `https://api.github.com/repos/${REPO}/issues`;
@@ -15,7 +15,7 @@ async function createIssue(title, body) {
     body: body
   }, {
     headers: {
-      Authorization: `token ${GITHUB_TOKEN}`,
+      Authorization: `token ${MY_PERSONAL_TOKEN}`,
       Accept: 'application/vnd.github.v3+json'
     }
   });
