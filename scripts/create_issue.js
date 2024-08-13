@@ -33,7 +33,7 @@ function parseTestResults() {
 	let testResult = {};
 	try {
 		// Mocha コマンドを実行して JSON 結果を取得
-		const result = execSync('npm test -- --reporter json', { stdio: 'pipe' }).toString();
+		const result = execSync('npm test -- --reporter json', { stdio: ['pipe', 'pipe', 'pipe'] }).toString();
 		console.log("Raw test result:", result); // JSONの内容をログに出力
 
 		// 出力から最初の非JSON行を除去
@@ -46,7 +46,8 @@ function parseTestResults() {
 
 	} catch (error) {
 		console.error('Error parsing test results:', error.message);
-		// テスト結果のパースに失敗した場合は、空の結果を返す
+		console.error('Standard Error Output:', error.stderr ? error.stderr.toString() : 'No stderr');
+		process.exit(1); // パースに失敗した場合、スクリプトを終了する
 	}
 
 	// テストの失敗をフィルタリング
@@ -78,6 +79,7 @@ async function main() {
 		}
 	} catch (error) {
 		console.error('Error in main function:', error.message);
+		process.exit(1); // エラーが発生した場合、スクリプトを終了する
 	}
 }
 
