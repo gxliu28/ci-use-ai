@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const config = require('./test-config');
+const config = require('../test-config');
 
 describe('Sample Test', () => {
 
