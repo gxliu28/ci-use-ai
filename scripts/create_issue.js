@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const { execSync } = require('child_process');
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_TOKEN = process.env.MY_PERSONAL_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
 
 console.log("GITHUB_TOKEN" + GITHUB_TOKEN);
