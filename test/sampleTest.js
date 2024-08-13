@@ -5,7 +5,8 @@ describe('Sample Test', () => {
 	it('should return true if the input is true', () => {
 		const input = true;
 		const output = input;  // 本来、ロジックがあるべきところ
-		expect(output).to.be.false; // このテストは意図的に失敗する
+		expect(output).to.be.true;
+		//expect(output).to.be.false; // このテストは意図的に失敗する
 	});
 
 	it('should throw an error for undefined input', () => {
