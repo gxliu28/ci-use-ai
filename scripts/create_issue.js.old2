@@ -1,7 +1,6 @@
 const axios = require('axios');
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 
-// 環境変数からトークンとリポジトリを取得
 const MY_PERSONAL_TOKEN = process.env.MY_PERSONAL_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
 
@@ -31,27 +30,29 @@ async function createIssue(title, body) {
 function parseTestResults() {
 	try {
 		// npm test コマンドを実行して結果を取得
-		const result = execSync('npm test', { encoding: 'utf-8' });
+		const result = spawnSync('npm', ['test'], { encoding: 'utf-8' });
 
-		// 標準出力とエラー出力を結合
-		const output = result;
+		if (result.error) {
+			console.error('Error running test:', result.error.message);
+			return [];
+		}
+
+		// 標準出力と標準エラー出力を結合
+		const output = result.stdout + result.stderr;
 		console.log("Test result:", output);
 
-		// エラーを抽出するための正規表現
-		// Mochaのエラーメッセージ形式に合わせた正規表現を使います
-		const failureRegex = /(\d+)\) (.+?)\n\s+(.+?)(?:\n|$)/gs;
+		// 正規表現で失敗したテストケースを抽出
+		const failureRegex = /(\d+\))\s+([^\n]+)\n\s+\+(.+?)\n\s+-/g;
 		let match;
 		const failedTests = [];
 
 		while ((match = failureRegex.exec(output)) !== null) {
 			const title = match[2].trim();
 			const message = match[3].trim();
-			const stack = match[0].trim(); // スタックトレースとしてエラー全体を使用
-
 			failedTests.push({
 				title: title,
 				message: message,
-				stack: stack
+				stack: match[0] // エラー部分全体をスタックトレースとして保存
 			});
 		}
 
