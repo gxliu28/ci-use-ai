@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  MY_PERSONAL_TOKEN: ${{ secrets.MY_PERSONAL_TOKEN }}
+
 jobs:
   build:
     runs-on: ubuntu-latest

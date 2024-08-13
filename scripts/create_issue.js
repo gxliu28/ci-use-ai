@@ -5,7 +5,7 @@ const { execSync } = require('child_process');
 const GITHUB_TOKEN = process.env.MY_PERSONAL_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
 
-console.log("GITHUB_TOKEN" + GITHUB_TOKEN);
+console.log("MY_PERSONAL_TOKEN=" + MY_PERSONAL_TOKEN);
 console.log("REPO" + REPO);
 
 async function createIssue(title, body) {
