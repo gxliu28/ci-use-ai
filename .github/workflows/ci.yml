@@ -26,6 +26,5 @@ jobs:
         continue-on-error: true
 
       - name: Parse test results and create issue
-        if: failure()
         run: node scripts/create_issue.js
 
