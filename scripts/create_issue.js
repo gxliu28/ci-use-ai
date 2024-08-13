@@ -30,9 +30,10 @@ async function createIssue(title, body) {
 }
 
 function parseTestResults() {
+	let testResult = {};
 	try {
 		// Mocha コマンドを実行して JSON 結果を取得
-		const result = execSync('npm test -- --reporter json').toString();
+		const result = execSync('npm test -- --reporter json', { stdio: 'pipe' }).toString();
 		console.log("Raw test result:", result); // JSONの内容をログに出力
 
 		// 出力から最初の非JSON行を除去
@@ -40,24 +41,25 @@ function parseTestResults() {
 		const jsonString = result.substring(jsonStartIndex).trim();
 
 		// JSONとしてパース
-		const parsedResult = JSON.parse(jsonString);
-		console.log("Parsed test result:", parsedResult); // パースされた結果をログに出力
+		testResult = JSON.parse(jsonString);
+		console.log("Parsed test result:", testResult); // パースされた結果をログに出力
 
-		// テストの失敗をフィルタリング
-		const failedTests = parsedResult.tests.filter(test => test.err && Object.keys(test.err).length > 0)
-			.map(failure => {
-				return {
-					title: failure.fullTitle,
-					message: failure.err.message,
-					stack: failure.err.stack
-				};
-			});
-
-		return failedTests;
 	} catch (error) {
 		console.error('Error parsing test results:', error.message);
-		return [];
+		// テスト結果のパースに失敗した場合は、空の結果を返す
 	}
+
+	// テストの失敗をフィルタリング
+	const failedTests = testResult.tests ? testResult.tests.filter(test => test.err && Object.keys(test.err).length > 0)
+		.map(failure => {
+			return {
+				title: failure.fullTitle,
+				message: failure.err.message,
+				stack: failure.err.stack
+			};
+		}) : [];
+
+	return failedTests;
 }
 
 async function main() {
@@ -80,4 +82,3 @@ async function main() {
 }
 
 main();
-
