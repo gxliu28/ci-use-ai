@@ -1,5 +1,4 @@
 const axios = require('axios');
-const fs = require('fs');
 const { execSync } = require('child_process');
 
 const MY_PERSONAL_TOKEN = process.env.MY_PERSONAL_TOKEN;
@@ -30,15 +29,17 @@ async function createIssue(title, body) {
 function parseTestResults() {
   try {
     const result = execSync('npm test -- --reporter json').toString();
+    console.log("Raw test result:", result); // JSONの内容をログに出力
     const parsedResult = JSON.parse(result);
 
-    const failedTests = parsedResult.failures.map(failure => {
-      return {
-        title: failure.fullTitle,
-        message: failure.err.message,
-        stack: failure.err.stack
-      };
-    });
+    const failedTests = parsedResult.tests.filter(test => test.err && Object.keys(test.err).length > 0)
+      .map(failure => {
+        return {
+          title: failure.fullTitle,
+          message: failure.err.message,
+          stack: failure.err.stack
+        };
+      });
 
     return failedTests;
   } catch (error) {
