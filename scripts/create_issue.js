@@ -35,7 +35,7 @@ function runTests() {
 		console.log("Test result:", result);
 		return result;
 	} catch (error) {
-		// エラーが発生した場合、エラーメッセージを取得
+		// 標準エラー出力からエラーメッセージを取得
 		console.error('Test failed:', error.stderr.toString());
 		return error.stderr.toString();
 	}
@@ -51,7 +51,7 @@ async function main() {
 	const issueBody = `### Test Run Result\n\n\`\`\`\n${testResult}\n\`\`\``;
 
 	// エラーメッセージが存在する場合、GitHub Issue を作成
-	if (testResult.includes('Error:')) {
+	if (testResult.includes('npm ERR!') || testResult.includes('Error:')) {
 		await createIssue(issueTitle, issueBody);
 	} else {
 		console.log('No test failures detected.');
