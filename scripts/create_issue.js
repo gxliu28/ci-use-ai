@@ -13,7 +13,8 @@ async function createIssue(title, body) {
 		}, {
 			headers: {
 				Authorization: `token ${MY_PERSONAL_TOKEN}`,
-				Accept: 'application/vnd.github.v3+json'
+				Accept: 'application/vnd.github.v3+json',
+				'User-Agent': 'Automated Issue Creator'
 			}
 		});
 
