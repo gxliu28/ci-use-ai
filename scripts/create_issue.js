@@ -1,8 +1,9 @@
 const axios = require('axios');
 const { execSync } = require('child_process');
+require('dotenv').config(); // .env ファイルから環境変数を読み込む
 
-//const MY_PERSONAL_TOKEN = process.env.MY_PERSONAL_TOKEN;
-//const REPO = process.env.GITHUB_REPOSITORY;
+const MY_PERSONAL_TOKEN = process.env.MY_PERSONAL_TOKEN;
+const REPO = process.env.GITHUB_REPOSITORY;
 
 async function createIssue(title, body) {
 	const url = `https://api.github.com/repos/${REPO}/issues`;
@@ -21,9 +22,10 @@ async function createIssue(title, body) {
 			console.log(`Issue created: ${response.data.html_url}`);
 		} else {
 			console.error('Failed to create issue. Status code:', response.status);
+			console.error('Response data:', response.data);
 		}
 	} catch (error) {
-		console.error('Error creating issue:', error.message);
+		console.error('Error creating issue:', error.response ? error.response.data : error.message);
 	}
 }
 
