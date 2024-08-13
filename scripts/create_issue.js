@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { execSync } = require('child_process');
 
+// 環境変数の取得
 const MY_PERSONAL_TOKEN = process.env.MY_PERSONAL_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
 
@@ -9,20 +10,24 @@ console.log("REPO=" + REPO);
 
 async function createIssue(title, body) {
   const url = `https://api.github.com/repos/${REPO}/issues`;
-  const response = await axios.post(url, {
-    title: title,
-    body: body
-  }, {
-    headers: {
-      Authorization: `token ${MY_PERSONAL_TOKEN}`,
-      Accept: 'application/vnd.github.v3+json'
-    }
-  });
+  try {
+    const response = await axios.post(url, {
+      title: title,
+      body: body
+    }, {
+      headers: {
+        Authorization: `token ${MY_PERSONAL_TOKEN}`,
+        Accept: 'application/vnd.github.v3+json'
+      }
+    });
 
-  if (response.status === 201) {
-    console.log(`Issue created: ${response.data.html_url}`);
-  } else {
-    console.error('Failed to create issue');
+    if (response.status === 201) {
+      console.log(`Issue created: ${response.data.html_url}`);
+    } else {
+      console.error('Failed to create issue. Status code:', response.status);
+    }
+  } catch (error) {
+    console.error('Error creating issue:', error.message);
   }
 }
 
@@ -30,7 +35,9 @@ function parseTestResults() {
   try {
     const result = execSync('npm test -- --reporter json').toString();
     console.log("Raw test result:", result); // JSONの内容をログに出力
+
     const parsedResult = JSON.parse(result);
+    console.log("Parsed test result:", parsedResult); // パースされた結果をログに出力
 
     const failedTests = parsedResult.tests.filter(test => test.err && Object.keys(test.err).length > 0)
       .map(failure => {
@@ -43,7 +50,7 @@ function parseTestResults() {
 
     return failedTests;
   } catch (error) {
-    console.error('Error parsing test results:', error);
+    console.error('Error parsing test results:', error.message);
     return [];
   }
 }
