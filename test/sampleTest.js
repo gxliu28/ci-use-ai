@@ -1,12 +1,14 @@
 const { expect } = require('chai');
+const config = require('./test-config');
 
 describe('Sample Test', () => {
 
 	it('should return true if the input is true', () => {
 		const input = true;
-		const output = input;  // 本来、ロジックがあるべきところ
-		expect(output).to.be.true;
-		//expect(output).to.be.false; // このテストは意図的に失敗する
+		const output = input;
+
+		// Use the configuration to toggle between a passing and failing test
+		expect(output).to.equal(config.shouldPass ? true : false);
 	});
 
 	it('should throw an error for undefined input', () => {
@@ -32,3 +34,4 @@ describe('Sample Test', () => {
 	});
 
 });
+
