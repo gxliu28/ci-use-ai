@@ -28,48 +28,31 @@ async function createIssue(title, body) {
 	}
 }
 
-function parseTestResults() {
+function runTests() {
 	try {
 		// npm test コマンドを実行して結果を取得
-		const result = execSync('npm test', { encoding: 'utf-8' });
-
-		// 標準出力とエラー出力を結合
-		const output = result;
-		console.log("Test result:", output);
-
-		// エラーを抽出するための正規表現
-		// Mochaのエラーメッセージ形式に合わせた正規表現を使います
-		const failureRegex = /(\d+)\) (.+?)\n\s+(.+?)(?:\n|$)/gs;
-		let match;
-		const failedTests = [];
-
-		while ((match = failureRegex.exec(output)) !== null) {
-			const title = match[2].trim();
-			const message = match[3].trim();
-			const stack = match[0].trim(); // スタックトレースとしてエラー全体を使用
-
-			failedTests.push({
-				title: title,
-				message: message,
-				stack: stack
-			});
-		}
-
-		return failedTests;
+		const result = execSync('npm test', { encoding: 'utf-8', stdio: 'pipe' });
+		console.log("Test result:", result);
+		return result;
 	} catch (error) {
-		console.error('Unexpected error:', error.message);
-		return [];
+		// エラーが発生した場合、エラーメッセージを取得
+		console.error('Test failed:', error.stderr.toString());
+		return error.stderr.toString();
 	}
 }
 
 async function main() {
-	const failedTests = parseTestResults();
-	if (failedTests.length > 0) {
-		for (const test of failedTests) {
-			const issueTitle = `Test Failure: ${test.title}`;
-			const issueBody = `### Error Message\n\n${test.message}\n\n### Stack Trace\n\`\`\`\n${test.stack}\n\`\`\``;
-			await createIssue(issueTitle, issueBody);
-		}
+	const testResult = runTests();
+
+	// 固定のタイトル
+	const issueTitle = 'Test Failure Detected';
+
+	// エラーメッセージ全体をボディとして設定
+	const issueBody = `### Test Run Result\n\n\`\`\`\n${testResult}\n\`\`\``;
+
+	// エラーメッセージが存在する場合、GitHub Issue を作成
+	if (testResult.includes('Error:')) {
+		await createIssue(issueTitle, issueBody);
 	} else {
 		console.log('No test failures detected.');
 	}
