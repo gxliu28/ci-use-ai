@@ -1,6 +1,5 @@
 const axios = require('axios');
 const { execSync } = require('child_process');
-require('dotenv').config(); // .env ファイルから環境変数を読み込む
 
 const MY_PERSONAL_TOKEN = process.env.MY_PERSONAL_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
