@@ -4,9 +4,6 @@ const { execSync } = require('child_process');
 const MY_PERSONAL_TOKEN = process.env.MY_PERSONAL_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
 
-console.log("MY_PERSONAL_TOKEN=" + MY_PERSONAL_TOKEN);
-console.log("REPO=" + REPO);
-
 async function createIssue(title, body) {
   const url = `https://api.github.com/repos/${REPO}/issues`;
   try {
@@ -32,11 +29,13 @@ async function createIssue(title, body) {
 
 function parseTestResults() {
   try {
+    // Mocha コマンドを実行して JSON 結果を取得
     const result = execSync('npm test -- --reporter json').toString();
     console.log("Raw test result:", result); // JSONの内容をログに出力
 
-    // 先頭と末尾の余分な文字を削除
+    // 出力から不要な文字を削除
     const trimmedResult = result.trim();
+    
     // JSONとしてパース
     const parsedResult = JSON.parse(trimmedResult);
     console.log("Parsed test result:", parsedResult); // パースされた結果をログに出力
