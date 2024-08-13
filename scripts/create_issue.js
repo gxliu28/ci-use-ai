@@ -5,6 +5,9 @@ const { execSync } = require('child_process');
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
 
+console.log("GITHUB_TOKEN" + GITHUB_TOKEN);
+console.log("REPO" + REPO);
+
 async function createIssue(title, body) {
   const url = `https://api.github.com/repos/${REPO}/issues`;
   const response = await axios.post(url, {
