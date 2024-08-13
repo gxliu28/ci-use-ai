@@ -1,21 +1,33 @@
 const { expect } = require('chai');
 
-describe('Sample Test', function() {
-	it('should return true if the input is true', function() {
+describe('Sample Test', () => {
+
+	it('should return true if the input is true', () => {
 		const input = true;
-		expect(input).to.be.true;
-		//expect(input).to.be.false;
+		const output = input;  // 本来、ロジックがあるべきところ
+		expect(output).to.be.false; // このテストは意図的に失敗する
 	});
 
-	it('should throw an error for undefined input', function() {
+	it('should throw an error for undefined input', () => {
 		const testFunction = (input) => {
 			if (input === undefined) {
 				throw new Error('Input is undefined');
 			}
-			return true;
+			return input;
 		};
-		expect(() => testFunction(undefined)).to.throw('Input is undefined');
-		//expect(() => testFunction(undefined)).to.not.throw('Input is undefined');
-	});
-});
 
+		expect(() => testFunction(undefined)).to.throw(Error, 'Input is undefined');
+	});
+
+	it('should pass when input is not undefined', () => {
+		const testFunction = (input) => {
+			if (input === undefined) {
+				throw new Error('Input is undefined');
+			}
+			return input;
+		};
+
+		expect(testFunction('valid input')).to.equal('valid input');
+	});
+
+});
