@@ -31,7 +31,9 @@ async function createIssue(title, body) {
 function parseTestResults() {
 	try {
 		// Mocha コマンドを実行して JSON 結果を取得
+		console.log("5");
 		const result = execSync('npm test -- --reporter json').toString();
+		console.log("6");
 		console.log("Raw test result:", result); // JSONの内容をログに出力
 
 		// 出力から最初の非JSON行を除去
@@ -61,11 +63,15 @@ function parseTestResults() {
 
 async function main() {
 	const failedTests = parseTestResults();
+	console.log("failedTests=\n" + failedTests);
 	if (failedTests.length > 0) {
+		console.log("10");
 		for (const test of failedTests) {
+			console.log("20");
 			const issueTitle = `Test Failure: ${test.title}`;
 			const issueBody = `### Error Message\n\n${test.message}\n\n### Stack Trace\n\`\`\`\n${test.stack}\n\`\`\``;
 			await createIssue(issueTitle, issueBody);
+			console.log("30");
 		}
 	} else {
 		console.log('No test failures detected.');
